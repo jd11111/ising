@@ -1,4 +1,4 @@
-# 2D Ising Model MCMC Simulation In Rust
+# 2D Ising Model MCMC Integration In Rust
 
 Computes the (average) absolute magnetization per lattice site for the (standard) 2D Ising model in thermal equilibrium for different values of the inverse temperature.  
 Uses Markov Chain Monte Carlo Integration with the Metropolis-Hastings algorithm.  
