@@ -1,0 +1,7 @@
+N= 30 #number of lattice sites in either direction (so N^2 sites in total)
+N_CYCLE = 100 #number of times to advance the chain in one cycle
+N_BURNCYCLES = 100 #number of cycles to initially advance the chain without sampling the magnetization
+N_MAG = 1000 #number of times to sample the magnetization with one cycle in between
+N_BETASAMPLES = 100 #number of beta values to calculate magnetization for (equally spaced modulo float stuff)
+BETA_MIN = 0.0 #beta start value
+BETA_MAX = 1.0 #beta end value

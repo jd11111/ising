@@ -3,17 +3,24 @@ use rand::distributions::{Distribution, Uniform};
 use rayon::prelude::*;
 
 use std::time::Instant;
-use std::iter::{zip};
+use std::iter::zip;
 use std::io::Write;                                                                                                                                                                                                                                                                                                                  
 use std::fs::File;
 
-const N : usize = 30; // number of lattice sites in either direction (so N^2 sites in total)
-const N_CYCLE :i16 = 100; // number of times to advance the chain between taking samples
-const N_MAG : i16 = 1000;// number of times to sample the magnetization
-const N_BURNCYCLES :i16 = 100; // number of cycles to initially advance the chain without sampling
-const N_BETASAMPLES : i16 = 100; //number of beta values to calculate magnetization for (equally spaced)
-const BETA_MIN : f32 = 0.0; // beta start value 
-const BETA_MAX : f32 = 1.0;// beta end value
+//module that stores constant parameters
+mod configin {
+    include!(concat!(env!("OUT_DIR"), "/config_in.rs"));
+}
+
+//obtain constant parameters (at compile time) from the config file (using build.rs shenanigans)
+const N : usize = configin::N;
+const N_CYCLE :i16 = configin::N_CYCLE;
+const N_BURNCYCLES :i16 = configin::N_BURNCYCLES;
+const N_MAG : i16 = configin::N_MAG;
+const N_BETASAMPLES : i16 = configin::N_BETASAMPLES;
+const BETA_MIN : f32= configin::BETA_MIN;
+const BETA_MAX : f32 = configin::BETA_MAX;
+
 
 fn calc_exparr(beta:&f32)->[f32;9]{
     let mut out: [f32;9]= [0.0;9];
@@ -24,6 +31,7 @@ fn calc_exparr(beta:&f32)->[f32;9]{
     return out;
 }
 
+//enforce peridioc boundary conditions:
 fn update_boundary(state: &mut [[i8;N+2];N+2],i:usize,j:usize) { 
     if i ==1 {
         state[N+1][j]=state[1][j];
@@ -39,6 +47,7 @@ fn update_boundary(state: &mut [[i8;N+2];N+2],i:usize,j:usize) {
     }
 }
 
+//advance the markov chain by N_CYCLE steps:
 fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,between: & Uniform<usize>, exp_arr : &[f32;9]){
     for _ in 0..N_CYCLE{
         let i: usize = between.sample(rng);
@@ -51,7 +60,6 @@ fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,betwe
         else{
             let y: f32 = rng.gen();
             let x = exp_arr[var as usize];
-            //let x: f32 = -2.0*beta*(var as f32); //can optimize by precomputing the exps here
             if y <= x{
                 state[i][j]=-1*state[i][j];
                 update_boundary(state, i, j);
@@ -60,6 +68,7 @@ fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,betwe
     }
 }
 
+//calculate the absolute value of the total spin in the given configuration
 fn calc_mag(state: &mut [[i8;N+2];N+2])->i32{
     let mut acc: i32 =0;
     for i in 1..N+1{
@@ -70,6 +79,7 @@ fn calc_mag(state: &mut [[i8;N+2];N+2])->i32{
     return acc.abs();
 }
 
+//do a simulation run with given beta and return the average magnetization
 fn run (beta: &f32)->f32{
     let mut rng: rand::prelude::ThreadRng =  rand::thread_rng();
     let between = Uniform::from(1.. N+1);
@@ -87,19 +97,21 @@ fn run (beta: &f32)->f32{
     return out;
 }
 
+
+
 fn main() {
+    //calculate the beta values for which to simulate
     let var = (BETA_MAX-BETA_MIN)/(N_BETASAMPLES as f32);
     let fun = |i|  BETA_MIN+ i as f32*var;
     let betas:Vec<f32> = (0.. N_BETASAMPLES+1).map(fun).collect();
 
     let now = Instant::now();
-
+    // run the simulations in parallel
     let par_iter = betas.par_iter().map(run);
     let mags_result: Vec<_> = par_iter.collect();
-
     let elapsed = now.elapsed();
-    
-    println!("Simulation finished!\n Time spent simulating: {:.2?}", elapsed);
+
+    println!("Simulation finished!\nTime spent simulating: {:.2?}", elapsed);
     
     //write everything to file
     let mut f = File::create("output").expect("Unable to create file");
