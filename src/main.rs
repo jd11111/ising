@@ -1,11 +1,15 @@
 use rand::Rng;
 use rand::distributions::{Distribution, Uniform};
 use rayon::prelude::*;
+
 use std::time::Instant;
+use std::iter::{zip};
+use std::io::Write;                                                                                                                                                                                                                                                                                                                  
+use std::fs::File;
 
 const N : usize = 30; // number of lattice sites in either direction (so N^2 sites in total)
-const N_CYCLE :i16 = 1000; // number of times to advance the chain between taking samples
-const N_MAG : i16 = 10000;// number of times to sample the magnetization
+const N_CYCLE :i16 = 100; // number of times to advance the chain between taking samples
+const N_MAG : i16 = 1000;// number of times to sample the magnetization
 const N_BURNCYCLES :i16 = 100; // number of cycles to initially advance the chain without sampling
 const N_BETASAMPLES : i16 = 100; //number of beta values to calculate magnetization for (equally spaced)
 const BETA_MIN : f32 = 0.0; // beta start value 
@@ -84,22 +88,23 @@ fn run (beta: &f32)->f32{
 }
 
 fn main() {
-    let mut betas : Vec<_>=vec![];
     let var = (BETA_MAX-BETA_MIN)/(N_BETASAMPLES as f32);
-    for i in 0.. N_BETASAMPLES+1{
-        let beta = BETA_MIN+i as f32 * var;
-        betas.push(beta);
-    }
+    let fun = |i|  BETA_MIN+ i as f32*var;
+    let betas:Vec<f32> = (0.. N_BETASAMPLES+1).map(fun).collect();
+
     let now = Instant::now();
 
     let par_iter = betas.par_iter().map(run);
     let mags_result: Vec<_> = par_iter.collect();
 
     let elapsed = now.elapsed();
-
-    println!("Used beta values:");
-    println!("{:?}", betas);
-    println!("Calculated average magnetization:");
-    println!("{:?}", mags_result);
-    println!("Time spent simulating: {:.2?}", elapsed);
+    
+    println!("Simulation finished!\n Time spent simulating: {:.2?}", elapsed);
+    
+    //write everything to file
+    let mut f = File::create("output").expect("Unable to create file");
+    write!(f,"beta,magnetization\n").expect("writing to file failed");                                                                                                    
+    for (a,b) in zip(&betas,&mags_result){                                                                                                                                                                  
+        write!(f,"{},{}\n",a,b).expect("writing to file failed");                                                                                                              
+    }     
 }
