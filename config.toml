@@ -1,7 +1,7 @@
 N= 50 #number of lattice sites in either direction (so N^2 sites in total)
-N_CYCLE = 2500 #number of times to advance the chain in one cycle
-N_BURNCYCLES = 100 #number of cycles to initially advance the chain without sampling the magnetization
+N_CYCLE = 2500 #number of times to advance the chain in one cycle to break the autocorrelation (>= N^2 so that, on average, every site will be proposed to flip)
+N_BURNCYCLES = 1000 #number of cycles to initially advance the chain without sampling the magnetization (should do convergence analysis for this)
 N_MAG = 10000 #number of times to sample the magnetization with one cycle in between
-N_BETASAMPLES = 1000 #number of beta values to calculate magnetization for (equally spaced modulo float stuff)
 BETA_MIN = 0.0 #beta start value
 BETA_MAX = 1.0 #beta end value
+N_BETASAMPLES = 1000 #number of beta values to calculate magnetization for (equally spaced modulo float stuff)
