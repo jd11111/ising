@@ -3,16 +3,21 @@ use rand::distributions::{Distribution, Uniform};
 use rayon::prelude::*;
 use std::time::Instant;
 
-const N : usize = 25; // number of lattice sites in either direction (so N^2 sites in total)
-const N_CYCLE :i16 = 5000; // number of times to advance the chain between taking samples
-const N_MAG : i16 = 100;// number of times to sample the magnetization
+const N : usize = 30; // number of lattice sites in either direction (so N^2 sites in total)
+const N_CYCLE :i16 = 1000; // number of times to advance the chain between taking samples
+const N_MAG : i16 = 10000;// number of times to sample the magnetization
 const N_BURNCYCLES :i16 = 100; // number of cycles to initially advance the chain without sampling
-const N_BETASAMPLES : i16 = 20; //number of beta values to calculate magnetization for (equally spaced)
-const BETA_MIN : f32 = 0.1; // beta start value 
-const BETA_MAX : f32 = 0.6;// beta end value
+const N_BETASAMPLES : i16 = 100; //number of beta values to calculate magnetization for (equally spaced)
+const BETA_MIN : f32 = 0.0; // beta start value 
+const BETA_MAX : f32 = 1.0;// beta end value
 
-const fn calc_exparr(){
-
+fn calc_exparr(beta:&f32)->[f32;9]{
+    let mut out: [f32;9]= [0.0;9];
+    for i in 0..9{
+        let x= -2.0*beta*i as f32;
+        out[i]= x.exp();
+    }
+    return out;
 }
 
 fn update_boundary(state: &mut [[i8;N+2];N+2],i:usize,j:usize) { 
@@ -30,7 +35,7 @@ fn update_boundary(state: &mut [[i8;N+2];N+2],i:usize,j:usize) {
     }
 }
 
-fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,between: & Uniform<usize>, beta : &f32){
+fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,between: & Uniform<usize>, exp_arr : &[f32;9]){
     for _ in 0..N_CYCLE{
         let i: usize = between.sample(rng);
         let j: usize = between.sample(rng);
@@ -41,8 +46,9 @@ fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,betwe
         }
         else{
             let y: f32 = rng.gen();
-            let x: f32 = -2.0*beta*(var as f32); //can optimize by precomputing the exps here
-            if y <= x.exp(){
+            let x = exp_arr[var as usize];
+            //let x: f32 = -2.0*beta*(var as f32); //can optimize by precomputing the exps here
+            if y <= x{
                 state[i][j]=-1*state[i][j];
                 update_boundary(state, i, j);
             }
@@ -63,13 +69,14 @@ fn calc_mag(state: &mut [[i8;N+2];N+2])->i32{
 fn run (beta: &f32)->f32{
     let mut rng: rand::prelude::ThreadRng =  rand::thread_rng();
     let between = Uniform::from(1.. N+1);
-    let mut state : [[i8;N+2];N+2] =[[1;N+2];N+2];
+    let exp_arr = calc_exparr(beta);
+    let mut state : [[i8;N+2];N+2] =[[-1;N+2];N+2];
     let mut z =0;
     for _ in 0..N_BURNCYCLES{
-        do_steps(&mut state, &mut rng, &between, &beta);
+        do_steps(&mut state, &mut rng, &between, &exp_arr);
     }
     for _ in 0..N_MAG{
-        do_steps(&mut state, &mut rng, &between, &beta);
+        do_steps(&mut state, &mut rng, &between, &exp_arr);
         z+= calc_mag(&mut state);
     }
     let out: f32 = z as f32 / (N_MAG as f32 * (N as f32).powi(2));
