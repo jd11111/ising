@@ -1,2 +1,9 @@
 /target
 Cargo.lock
+doc/ising_doc.aux
+doc/ising_doc.fdb_latexmk
+doc/ising_doc.log
+doc/ising_doc.out
+doc/ising_doc.synctex.gz
+doc/ising_doc.toc
+doc/ising_doc.fls
