@@ -1,4 +1,2 @@
 /target
-data_visualization.ipynb
-output
-Carg.lock
+Cargo.lock

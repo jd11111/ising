@@ -1,12 +1,23 @@
 # 2D Ising Model MCMC Integration In Rust
 
-Computes the (average) absolute magnetization per lattice site for the (standard) 2D Ising model in thermal equilibrium for a given range of inverse temperature values.
+Computes the (average) absolute magnetization per lattice site for the (standard i.e. $J=\pm1$) 2D Ising model in thermal equilibrium for a given range of inverse temperature values.
 
-The data to produce the following figure was obtained using this program:
-<img src="mag.png" alt="drawing" width="800"/>
-
-Uses Markov Chain Monte Carlo Integration with the Metropolis-Hastings algorithm.  
+Uses Markov Chain Monte Carlo integration with the Metropolis-Hastings algorithm.  
+Runs simulations for different inverse temperatures in parallel.  
 The main code running the simulation is in the main.rs file in the src directory.
+
+The data displayed in the following figure was obtained using this code ($N$ is the lattice size):
+
+<img src="visualization/mag.png" alt="drawing" width="800"/>
+
+The $N=\infty$ labeled line is the exact solution in the infinite lattice limit).
+A jupyter notebook and the data to produce the above figure are included in the "visualization" directory.
+
+
+
+**Performance**:
+It takes around 200 seconds to to generate the data for $N=100$ on my intel i7-9700k (8 cores@5Ghz).  
+The precise parameters were: "N=100, N_CYCLE=10000, N_BURNCYCLES=1000, N_MAG=10000, N_BETASAMPLES =1000, BETA_MIN=0.00, BETA_MAX=1.00" (see the comments in the "config.toml" file for descriptions of what these parameters do).
 
 ## Usage
 

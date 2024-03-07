@@ -69,23 +69,23 @@ fn do_steps(state: &mut [[i8;N+2];N+2], rng: &mut rand::prelude::ThreadRng,betwe
 }
 
 //calculate the absolute value of the total spin in the given configuration
-fn calc_mag(state: &mut [[i8;N+2];N+2])->i32{
-    let mut acc: i32 =0;
+fn calc_mag(state: &mut [[i8;N+2];N+2])->i64{
+    let mut acc: i64 =0;
     for i in 1..N+1{
         for j in 1..N+1{
-            acc += state[i][j] as i32;
+            acc += state[i][j] as i64;
         }
     }
     return acc.abs();
 }
 
 //do a simulation run with given beta and return the average magnetization
-fn run (beta: &f32)->f32{
+fn run (beta: &f32)->f64{
     let mut rng: rand::prelude::ThreadRng =  rand::thread_rng();
     let between = Uniform::from(1.. N+1);
     let exp_arr = calc_exparr(beta);
     let mut state : [[i8;N+2];N+2] =[[-1;N+2];N+2];
-    let mut z =0;
+    let mut z: i64 =0;
     for _ in 0..N_BURNCYCLES{
         do_steps(&mut state, &mut rng, &between, &exp_arr);
     }
@@ -93,20 +93,24 @@ fn run (beta: &f32)->f32{
         do_steps(&mut state, &mut rng, &between, &exp_arr);
         z+= calc_mag(&mut state);
     }
-    let out: f32 = z as f32 / (N_MAG as f32 * (N as f32).powi(2));
+    let out: f64 = z as f64 / (N_MAG as f64 * (N as f64).powi(2));
     return out;
 }
 
 
 
 fn main() {
+    //echo current config to console
+    println!("current config:");
+    println!("N={}, N_CYCLE={}, N_BURNCYCLES={}, N_MAG={}, N_BETASAMPLES ={}, BETA_MIN={:.2}, BETA_MAX={:.2}",N,N_CYCLE,N_BURNCYCLES,N_MAG,N_BETASAMPLES,BETA_MIN,BETA_MAX);
+
     //calculate the beta values for which to simulate
     let var = (BETA_MAX-BETA_MIN)/(N_BETASAMPLES as f32);
     let fun = |i|  BETA_MIN+ i as f32*var;
     let betas:Vec<f32> = (0.. N_BETASAMPLES+1).map(fun).collect();
 
+    // run the simulations in parallel and time it
     let now = Instant::now();
-    // run the simulations in parallel
     let par_iter = betas.par_iter().map(run);
     let mags_result: Vec<_> = par_iter.collect();
     let elapsed = now.elapsed();
