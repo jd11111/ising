@@ -148,8 +148,8 @@ This optimisation leads to algorithm \ref{alg:cap2}.
 \end{algorithmic}
 \end{algorithm}
 Furthermore there are only two values $H^{i_{t+1}}(x_t) $ can take if it is negative: -2 and -4.
-This can be used to create a lookup table that maps the value of $H_{\mathrm{loc}}^{i_{t+1}}(x_t)$
-to the value of $\exp ( - 2 \beta  H_{\mathrm{loc}}^{i_{t+1}}(x_t))$ instead of calculating it
+This can be used to map the value of $H_{\mathrm{loc}}^{i_{t+1}}(x_t)$
+to the value of $\exp (2 \beta  H_{\mathrm{loc}}^{i_{t+1}}(x_t))$ instead of calculating it
 over and over again.
 
 The code implements algorithm \ref{alg:cap2} with the additional optimization mentioned after it.
@@ -179,7 +179,7 @@ as described in the preceding section.
 In the code the state is also advanced by a large amount (not just 1)
 between taking samples to break the correlation between subsequent samples.
 
-\section{Metropolis-Hastings Algorithm Deep-Dive}
+\section{Metropolis-Hastings Algorithm}
 \label{sec:3}
 
 This section explains the Metropolis-Hastings algorithm.
