@@ -15,7 +15,7 @@ A jupyter notebook and the data to produce the above figure are included in the 
 
 
 
-**Performance**:
+**Performance**:  
 It takes around 200 seconds to to generate the data for $N=100$ on my intel i7-9700k (8 cores@5Ghz).  
 The precise parameters were: "N=100, N_CYCLE=10000, N_BURNCYCLES=1000, N_MAG=10000, N_BETASAMPLES =1000, BETA_MIN=0.00, BETA_MAX=1.00" (see the comments in the "config.toml" file for descriptions of what these parameters do).
 
