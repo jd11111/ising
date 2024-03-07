@@ -3,7 +3,8 @@
 Computes the (average) absolute magnetization per lattice site for the (standard ferromagnetic i.e. $J=1$) 2D Ising model in thermal equilibrium for a given range of inverse temperature values.
 
 Uses Markov Chain Monte Carlo integration with the Metropolis-Hastings algorithm.  
-The $2D$ Ising model and the concrete implementation of the Metropolis-Hastings algorithm are explained in detail [in the documentation](./doc/ising_doc.pdf).  
+The $2D$ Ising model and the concrete implementation of the Metropolis-Hastings algorithm are explained in detail
+in the documentation which can be found in the doc directory.  
 Runs simulations for different inverse temperatures in parallel.  
 The main code running the simulation is in the main.rs file in the src directory.
 
