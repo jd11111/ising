@@ -10,7 +10,7 @@ The data displayed in the following figure was obtained using this code ($N$ is 
 
 <img src="visualization/mag.png" alt="drawing" width="800"/>
 
-The $N=\infty$ labeled line is the exact solution in the infinite lattice limit).
+The $N=\infty$ labeled line is the exact solution in the infinite lattice limit.
 A jupyter notebook and the data to produce the above figure are included in the "visualization" directory.
 
 
